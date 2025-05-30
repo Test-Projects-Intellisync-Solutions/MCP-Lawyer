@@ -11,9 +11,63 @@ This document tracks tasks for the MCP Lawyer server project.
 
 ## Current Tasks
 
+### Priority #1: OpenAI Agents SDK Integration - Phase 1
+
+*   `[DONE] 2025-05-30`: **Setup & Initial Configuration for Agents SDK**:
+    *   Objective: Prepare the project environment for the OpenAI Agents SDK.
+    *   Actions:
+        1.  Add `openai-agents` to `requirements.txt`.
+        2.  Run `pip install -r requirements.txt` (or ensure it's installed).
+        3.  Review `app/config.py` for any immediate new settings required for basic agent definitions (e.g., default agent instructions, model choices for agents). Add placeholders if necessary.
+*   `[DONE] 2025-05-30`: **Create `AgentOrchestrationService`**:
+    *   Objective: Establish a dedicated service for managing and running AI agents built with the SDK.
+    *   Actions:
+        1.  Create `app/services/agent_orchestration_service.py`.
+        2.  Define a basic structure for the `AgentOrchestrationService` class. This service will later house agent definitions and runner logic.
+        3.  Initialize this service in `app/main.py`'s `lifespan` manager and add it to `app.state`.
+*   `[DONE] 2025-05-30`: **Develop Initial Function Tools (3 examples: `get_clauses`, `search_case_law`, `format_case_citation`)**:
+    *   Objective: Convert a few existing service methods into agent-usable tools.
+    *   Actions:
+        1.  Identify 2-3 relatively simple, high-value methods from existing services (e.g., `ClauseLibraryService.search_clauses`, `LegalResearchService.find_relevant_statutes`, `ClientIntakeService.get_form_questions`).
+        2.  In their respective service files (or in `AgentOrchestrationService` as wrappers if preferred for modularity initially), apply the `@tool` decorator from `agents` SDK.
+        3.  Ensure method parameters use Pydantic models (from `app/models/`) or clear type hints for automatic schema generation.
+*   `[DONE] 2025-05-30`: **Implement Basic Agent Workflow in `AgentOrchestrationService`**:
+    *   Objective: Create a first, simple agent that utilizes one or more of the new function tools.
+    *   Actions:
+        1.  Within `AgentOrchestrationService`, define a method (e.g., `run_legal_research_agent`).
+        2.  Inside this method, instantiate an `Agent` with basic instructions (e.g., "You are a legal research assistant. Use available tools to answer questions.").
+        3.  Make the newly created function tools available to this agent.
+        4.  Use `Runner.run_sync` (or async equivalent) to execute the agent with a sample query that would require using a tool (e.g., "Find clauses related to 'indemnification'.").
+*   `[DONE] 2025-05-30`: **Create API Endpoint for Basic Agent Workflow**:
+    *   Objective: Expose the basic agent workflow via an API endpoint.
+    *   Actions:
+        1.  Create a new router file, e.g., `app/routes/agent_routes.py` (if it doesn't exist).
+        2.  Define an `APIRouter` in this file.
+        3.  Add a POST endpoint (e.g., `/api/v1/agents/perform-research`) that takes a user query.
+        4.  This endpoint should call the corresponding method in `AgentOrchestrationService` (e.g., `run_legal_research_agent`) and return the agent's final output.
+        5.  Include this new router in `app/main.py`.
+*   `[TODO] 2025-05-30`: **Initial Testing & Explore Tracing**:
+    *   Objective: Verify the end-to-end functionality of the basic agent workflow and familiarize with SDK tracing.
+    *   Actions:
+        1.  Manually test the new API endpoint with sample queries.
+        2.  Verify that the agent correctly calls the intended tools and produces a relevant response.
+        3.  Investigate how to enable and view the SDK's built-in tracing to understand the agent's execution flow.
+*   `[TODO] 2025-05-30`: **Internal Documentation Update for Agents SDK Integration**:
+    *   Objective: Document the initial agent integration approach for team reference.
+    *   Actions:
+        1.  Add a section to `PLANNING.md` or create a new internal note detailing:
+            *   The role of `AgentOrchestrationService`.
+            *   How to convert existing service methods into function tools.
+            *   Basic principles for defining new agents.
+
+
 ### Configuration & Setup
 
 ### Core Functionality Enhancements
+
+*   `[TODO] 2025-05-30`: **Review OpenAI Agents SDK for Potential Integration**:
+    *   Objective: Evaluate the OpenAI Agents SDK to understand its capabilities and assess how it could be used to add more models or agentic features to the MCP Lawyer project.
+    *   Action: Read SDK documentation, consider integration points with the existing FastAPI architecture, and report findings.
 *   `[DONE] 2025-05-30`: **Standardize Logging**:
     *   Objective: Use the `logging` module consistently throughout the application.
     *   Action: Replaced `print()` statements with `logger` calls in services and routes. Leveraged the logger configured in `app/main.py`.
@@ -34,6 +88,10 @@ This document tracks tasks for the MCP Lawyer server project.
         *   `app/routes/legal_tools_routes.py`: Replaced `print()` with `logger.info()` and `logger.warning()`.
 
 ### Documentation
+
+*   `[TODO] 2025-05-30`: **Create OpenAI Agents SDK Manual**:
+    *   Objective: Develop a comprehensive, beginner-friendly Markdown document (`openai_agents_sdk_manual.md`) explaining the OpenAI Agents SDK.
+    *   Action: Gather information from official SDK documentation, structure it logically (Introduction, Installation, Core Concepts, Tools, Handoffs, Tracing, Examples, Best Practices), and write clear explanations with code snippets.
 *   `[TODO] 2025-05-30`: **Create/Update Project `README.md`**:
     *   Objective: Provide essential information for developers and users of the project.
     *   Action: Create or update the main `README.md` in the project root to include:
